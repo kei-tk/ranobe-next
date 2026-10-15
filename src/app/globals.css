@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* next-themes が <html class="dark"> を付け外しする */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * デザイントークン (docs/ui-design.md §1)。
+ * ライトは design/mock/_ds/modernist-* の値をそのまま。ダークは同じ ramp から導いた値 (§1.5)。
+ * shadcn の変数名に合わせつつ、デザインにしかない役割は変数を足している。
+ * 注意: shadcn の --accent は「hover の面」。デザインの朱色は --primary / --brand を使う。
+ */
+:root {
+  color-scheme: light;
+
+  --background: #f3f2f2;
+  --foreground: #201e1d;
+  --card: #eae9e9;
+  --card-foreground: #201e1d;
+  --popover: #f3f2f2;
+  --popover-foreground: #201e1d;
+  --muted: #eae9e9;
+  --muted-foreground: #605d5d;
+  --subtle-foreground: #7d7979;
+
+  /* 文字を載せる朱色の面 (4.74:1 になるよう 600 を使う。§7-12 案 B) */
+  --primary: #dd2b0f;
+  --primary-foreground: #ffffff;
+  --primary-hover: #ae1800;
+  --primary-active: #7c1405;
+  /* 文字を載せない朱色 (ロゴ・フォーカスリング・タグの枠線) */
+  --brand: #ec3013;
+  /* 背景の上に置く朱色の文字 */
+  --accent-text: #ae1800;
+  --accent-tint: #fff2ef;
+  --accent-tint-foreground: #7c1405;
+
+  --secondary: #eae9e9;
+  --secondary-foreground: #201e1d;
+  /* shadcn の hover の面 */
+  --accent: color-mix(in srgb, #201e1d 7%, transparent);
+  --accent-foreground: #201e1d;
+
+  --border: color-mix(in srgb, #201e1d 40%, transparent);
+  --input: color-mix(in srgb, #201e1d 40%, transparent);
+  --line: #d7d3d3;
+  --chip-border: #bab6b6;
+  --ring: #ec3013;
+  --destructive: #ae1800;
+  --overlay: color-mix(in srgb, #201e1d 86%, transparent);
+
+  --radius: 0px;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #1a1918;
+  --foreground: #f3f2f2;
+  --card: #262423;
+  --card-foreground: #f3f2f2;
+  --popover: #262423;
+  --popover-foreground: #f3f2f2;
+  --muted: #262423;
+  --muted-foreground: #bab6b6;
+  --subtle-foreground: #9b9797;
+
+  --primary: #dd2b0f;
+  --primary-foreground: #ffffff;
+  --primary-hover: #c42309;
+  --primary-active: #ae1800;
+  --brand: #ec3013;
+  --accent-text: #ff563c;
+  --accent-tint: #401d17;
+  --accent-tint-foreground: #ffc4b8;
+
+  --secondary: #262423;
+  --secondary-foreground: #f3f2f2;
+  --accent: color-mix(in srgb, #f3f2f2 7%, transparent);
+  --accent-foreground: #f3f2f2;
+
+  --border: color-mix(in srgb, #f3f2f2 35%, transparent);
+  --input: color-mix(in srgb, #f3f2f2 35%, transparent);
+  --line: #444141;
+  --chip-border: #605d5d;
+  --ring: #ec3013;
+  --destructive: #ff563c;
+  --overlay: color-mix(in srgb, #201e1d 86%, transparent);
+}
+
+@theme inline {
+  --font-sans: var(--font-archivo), var(--font-noto-sans-jp), system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-brand: var(--brand);
+  --color-accent-text: var(--accent-text);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-tint-foreground: var(--accent-tint-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-line: var(--line);
+  --color-chip-border: var(--chip-border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-overlay: var(--overlay);
+
+  /* 角丸はどこにも付けない (デザインシステムのルール) */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  /* キーボード操作のフォーカスは、朱色の 2px の枠 (ブラウザ既定の青い枠は使わない) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 30%, transparent);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

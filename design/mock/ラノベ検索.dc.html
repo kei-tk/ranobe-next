@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-5ce9e13f-73b0-48de-bb0b-25c80f874a65/styles.css">
+<script src="_ds/modernist-5ce9e13f-73b0-48de-bb0b-25c80f874a65/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap">
+<style>:root{--font-heading:"Archivo","Noto Sans JP",sans-serif;--font-body:"Archivo","Noto Sans JP",sans-serif}body{margin:0;background:var(--color-bg)}a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+<header style="position:sticky;top:0;z-index:10;background:var(--color-bg);border-bottom:2px solid var(--color-divider)">
+  <div style="max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+    <button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer;color:var(--color-text);font:inherit">
+      <span style="width:18px;height:18px;background:var(--color-accent);display:block"></span>
+      <span style="font-weight:900;font-size:19px;letter-spacing:.02em">ラノベ索引</span>
+    </button>
+    <nav style="display:flex;gap:4px">
+      <button onClick="{{ goHome }}" style="background:none;border:0;padding:6px 10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:{{ navHomeColor }}" style-hover="color:var(--color-accent)">新刊</button>
+      <button onClick="{{ goSearch }}" style="background:none;border:0;padding:6px 10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:{{ navSearchColor }}" style-hover="color:var(--color-accent)">検索</button>
+    </nav>
+    <div style="flex:1 1 280px;max-width:460px;position:relative;display:flex;align-items:center">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;opacity:.6;pointer-events:none"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input class="input" value="{{ query }}" onChange="{{ onQuery }}" placeholder="タイトル・著者・タグで検索" style="padding-left:34px">
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+      <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:30px;height:30px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-weight:800;font-size:13px">ゆ</span>
+          <span style="font-size:14px;font-weight:700">ゆずき</span>
+        </div>
+        <button class="btn btn-ghost" onClick="{{ logout }}">ログアウト</button>
+      </sc-if>
+      <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ false }}">
+        <button class="btn btn-primary" onClick="{{ login }}">ログイン</button>
+      </sc-if>
+    </div>
+  </div>
+</header>
+
+<main style="max-width:1240px;margin:0 auto;padding:32px 24px 80px">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="01 ホーム" style="display:flex;flex-direction:column;gap:48px">
+
+  <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <div style="border-top:2px solid var(--color-text);padding-top:14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:26px">あなたへのおすすめ</h2>
+      <span style="font-size:12px;color:var(--color-neutral-700)">ゆずきさんの読書傾向：#異世界 #スローライフ #魔法</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:28px 20px">
+      <sc-for list="{{ recs }}" as="b" hint-placeholder-count="6">
+        <button onClick="{{ b.open }}" style="display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0" style-hover="color:var(--color-accent)">
+          <div style="aspect-ratio:105/148;width:100%;background:{{ b.bg }};color:{{ b.fg }};padding:10px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+            <div style="font-size:9px;letter-spacing:.06em;opacity:.85">{{ b.label }}</div>
+            <div style="font-weight:900;font-size:13px;line-height:1.35;text-wrap:pretty">{{ b.title }}</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px"><span style="font-size:10px">{{ b.author }}</span><span style="font-weight:800;font-size:26px;line-height:1">{{ b.vol }}</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent-700);line-height:1.4">{{ b.reason }}</div>
+            <div style="font-weight:700;font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ b.title }}</div>
+            <div style="font-size:12px;color:var(--color-neutral-700)">{{ b.author }}</div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+  </sc-if>
+
+  <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ false }}">
+  <div style="background:var(--color-surface);border-left:0;padding:18px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:2px">
+      <span style="font-weight:800;font-size:16px">あなたへのおすすめ</span>
+      <span style="font-size:13px;color:var(--color-neutral-700)">ログインすると、読書履歴にもとづくおすすめが表示されます。</span>
+    </div>
+    <button class="btn btn-primary" onClick="{{ login }}">ログイン</button>
+  </div>
+  </sc-if>
+
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:12px;font-weight:700;margin-right:6px">タグから探す</span>
+    <sc-for list="{{ popularTags }}" as="t" hint-placeholder-count="10">
+      <button class="tag tag-neutral" onClick="{{ t.onClick }}" style="border:1px solid var(--color-neutral-300);cursor:pointer;font:inherit;font-size:12px;padding:4px 10px" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)">#{{ t.name }}</button>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+    <h1 style="margin:0;font-size:40px">新刊</h1>
+    <span style="font-size:13px;color:var(--color-neutral-700)">2026年10月13日 更新</span>
+  </div>
+
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+    <section style="display:flex;flex-direction:column;gap:20px">
+      <div style="border-top:2px solid var(--color-divider);padding-top:14px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+        <h2 style="margin:0;font-size:22px">{{ g.title }}</h2>
+        <span style="font-size:13px;color:var(--color-neutral-700)">{{ g.sub }}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--color-neutral-700)">{{ g.count }}冊</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:28px 20px">
+        <sc-for list="{{ g.books }}" as="b" hint-placeholder-count="6">
+          <button onClick="{{ b.open }}" style="display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0" style-hover="color:var(--color-accent)">
+            <div style="aspect-ratio:105/148;width:100%;background:{{ b.bg }};color:{{ b.fg }};padding:10px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+              <div style="font-size:9px;letter-spacing:.06em;opacity:.85">{{ b.label }}</div>
+              <div style="font-weight:900;font-size:13px;line-height:1.35;text-wrap:pretty">{{ b.title }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px"><span style="font-size:10px">{{ b.author }}</span><span style="font-weight:800;font-size:26px;line-height:1">{{ b.vol }}</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="font-weight:700;font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ b.title }}</div>
+              <div style="font-size:12px;color:var(--color-neutral-700)">{{ b.author }}</div>
+              <div style="font-size:11px;color:var(--color-neutral-600)">{{ b.dateText }}</div>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="02 検索" style="display:flex;flex-direction:column;gap:24px">
+  <div style="border-bottom:2px solid var(--color-divider);padding-bottom:16px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:12px;color:var(--color-neutral-700)">{{ resultCount }}件</span>
+      <h1 style="margin:0;font-size:32px">{{ resultTitle }}</h1>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--color-neutral-700)">並び順</span>
+      <div class="seg">
+        <label class="seg-opt"><input type="radio" name="sort" checked="{{ sortNew }}" onChange="{{ setSortNew }}">新しい順</label>
+        <label class="seg-opt"><input type="radio" name="sort" checked="{{ sortTitle }}" onChange="{{ setSortTitle }}">タイトル順</label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <aside style="flex:0 0 240px;display:flex;flex-direction:column;gap:16px;position:sticky;top:90px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-weight:800;font-size:15px">タグで絞り込み</span>
+        <sc-if value="{{ hasTags }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-ghost" onClick="{{ clearTags }}" style="font-size:12px;padding:2px 4px">解除</button>
+        </sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;color:var(--color-neutral-700)">複数タグの条件</span>
+        <div class="seg" style="display:flex">
+          <label class="seg-opt" style="flex:1"><input type="radio" name="mode" checked="{{ isAnd }}" onChange="{{ setAnd }}">すべて含む</label>
+          <label class="seg-opt" style="flex:1"><input type="radio" name="mode" checked="{{ isOr }}" onChange="{{ setOr }}">いずれか</label>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ tagItems }}" as="t" hint-placeholder-count="12">
+          <button onClick="{{ t.toggle }}" style="display:flex;align-items:center;gap:10px;padding:8px 2px;background:none;border:0;border-bottom:1px solid var(--color-neutral-300);font:inherit;font-size:14px;color:var(--color-text);cursor:pointer;text-align:left;opacity:{{ t.opacity }}" style-hover="background:color-mix(in srgb, var(--color-text) 5%, transparent)">
+            <span style="width:16px;height:16px;flex:none;border:1.5px solid {{ t.boxBorder }};background:{{ t.boxBg }};display:grid;place-items:center;color:var(--color-bg)">
+              <sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+            </span>
+            <span style="flex:1">{{ t.name }}</span>
+            <span style="font-size:12px;color:var(--color-neutral-600)">{{ t.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </aside>
+
+    <div style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:20px">
+      <sc-if value="{{ hasTags }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--color-neutral-700)">{{ modeLabel }}</span>
+          <sc-for list="{{ selectedChips }}" as="c" hint-placeholder-count="2">
+            <button class="tag tag-accent" onClick="{{ c.remove }}" style="border:0;cursor:pointer;font:inherit;font-size:12px;padding:4px 8px 4px 10px;gap:6px" style-hover="background:var(--color-accent-200)">#{{ c.name }}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:48px 0;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+          <span style="font-weight:800;font-size:18px">条件に一致する作品はありません</span>
+          <span style="font-size:13px;color:var(--color-neutral-700)">キーワードを変えるか、タグの条件を「いずれか」にしてみてください。</span>
+          <button class="btn btn-secondary" onClick="{{ resetSearch }}">条件をすべて解除</button>
+        </div>
+      </sc-if>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:28px 20px">
+        <sc-for list="{{ results }}" as="b" hint-placeholder-count="8">
+          <button onClick="{{ b.open }}" style="display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0" style-hover="color:var(--color-accent)">
+            <div style="aspect-ratio:105/148;width:100%;background:{{ b.bg }};color:{{ b.fg }};padding:10px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+              <div style="font-size:9px;letter-spacing:.06em;opacity:.85">{{ b.label }}</div>
+              <div style="font-weight:900;font-size:13px;line-height:1.35;text-wrap:pretty">{{ b.title }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px"><span style="font-size:10px">{{ b.author }}</span><span style="font-weight:800;font-size:26px;line-height:1">{{ b.vol }}</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="font-weight:700;font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ b.title }}</div>
+              <div style="font-size:12px;color:var(--color-neutral-700)">{{ b.author }}</div>
+              <div style="font-size:11px;color:var(--color-neutral-600)">{{ b.tagLine }}</div>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="03 書籍詳細" style="display:flex;flex-direction:column;gap:40px">
+  <button class="btn btn-ghost" onClick="{{ goBack }}" style="align-self:flex-start;color:var(--color-text)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>{{ backLabel }}</button>
+
+  <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+    <div style="flex:0 1 300px;min-width:220px">
+      <div style="aspect-ratio:105/148;width:100%;background:{{ book.bg }};color:{{ book.fg }};padding:22px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow-md)">
+        <div style="font-size:12px;letter-spacing:.08em;opacity:.85">{{ book.label }}</div>
+        <div style="font-weight:900;font-size:24px;line-height:1.35;text-wrap:pretty">{{ book.title }}</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px"><span style="font-size:13px">{{ book.author }}</span><span style="font-weight:800;font-size:72px;line-height:.9">{{ book.vol }}</span></div>
+      </div>
+    </div>
+
+    <div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-accent-700)">{{ book.label }} · {{ book.dateLong }}発売</span>
+        <h1 style="margin:0;font-size:34px;line-height:1.3;text-wrap:pretty">{{ book.title }}</h1>
+        <span style="font-size:15px;color:var(--color-neutral-700)">第{{ book.vol }}巻</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:96px minmax(0,1fr);border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ metaRows }}" as="r" hint-placeholder-count="4">
+          <div style="padding:10px 0;border-bottom:1px solid var(--color-neutral-300);font-size:12px;color:var(--color-neutral-700)">{{ r.k }}</div>
+          <div style="padding:10px 0;border-bottom:1px solid var(--color-neutral-300);font-size:15px;font-weight:500">{{ r.v }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h6 style="margin:0">タグ</h6>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ detailTags }}" as="t" hint-placeholder-count="4">
+            <button class="tag tag-outline" onClick="{{ t.onClick }}" style="background:none;cursor:pointer;font:inherit;font-size:13px;padding:5px 12px" style-hover="background:var(--color-accent-100)">#{{ t.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h6 style="margin:0">あらすじ</h6>
+        <p style="margin:0;font-size:15px;line-height:1.95;max-width:38em;text-wrap:pretty">{{ book.synopsis }}</p>
+      </div>
+    </div>
+  </div>
+
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <div style="border-top:2px solid var(--color-text);padding-top:14px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:24px">似た書籍</h2>
+      <span style="font-size:12px;color:var(--color-neutral-700)">タグと著者の共通点から選んでいます</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:28px 20px">
+      <sc-for list="{{ similar }}" as="b" hint-placeholder-count="6">
+        <button onClick="{{ b.open }}" style="display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0" style-hover="color:var(--color-accent)">
+          <div style="aspect-ratio:105/148;width:100%;background:{{ b.bg }};color:{{ b.fg }};padding:10px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+            <div style="font-size:9px;letter-spacing:.06em;opacity:.85">{{ b.label }}</div>
+            <div style="font-weight:900;font-size:13px;line-height:1.35;text-wrap:pretty">{{ b.title }}</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px"><span style="font-size:10px">{{ b.author }}</span><span style="font-weight:800;font-size:26px;line-height:1">{{ b.vol }}</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent-700);line-height:1.4">{{ b.reason }}</div>
+            <div style="font-weight:700;font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ b.title }}</div>
+            <div style="font-size:12px;color:var(--color-neutral-700)">{{ b.author }}</div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startLoggedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;homeGrouping&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;発売日&quot;,&quot;レーベル&quot;],&quot;default&quot;:&quot;発売日&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;coverSize&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;コンパクト&quot;,&quot;標準&quot;,&quot;大きめ&quot;],&quot;default&quot;:&quot;標準&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const TAGS = ['異世界','転生','ファンタジー','魔法','スローライフ','学園','ラブコメ','恋愛','青春','日常','ミステリー','SF','バトル','冒険','ダンジョン','料理','悪役令嬢','歴史','ホラー','主人公最強','女性主人公'];
+const BOOKS = [
+  {id:'b01',title:'辺境の錬金術師は今日も畑を耕す',vol:3,author:'森野ゆずる',illust:'葉月しずく',label:'白鷺文庫',date:'2026-10-10',tags:['異世界','スローライフ','魔法','料理'],synopsis:'王都を追われた錬金術師ノエルは、辺境の村で薬草畑と小さな工房を営んでいる。収穫祭を前に村へやってきたのは、北の砦から逃げてきた若い騎士と、言葉を話す鍋だった。畑と台所から始まる、のんびり錬金スローライフ第3巻。'},
+  {id:'b02',title:'放課後の図書室には探偵がいる',vol:1,author:'雨宮 透',illust:'kona',label:'スピカ文庫',date:'2026-10-10',tags:['学園','ミステリー','青春'],synopsis:'図書委員になった高校一年の春日は、閉館後の図書室に毎日居座る先輩・御影と出会う。返却されない本、書き換えられた貸出カード、誰もいないはずの書架の足音。小さな謎を本と一緒に解いていく、日常系学園ミステリー。'},
+  {id:'b03',title:'星喰いの少女と最後の観測者',vol:1,author:'高瀬ルカ',illust:'七原',label:'ノクス文庫',date:'2026-10-09',tags:['SF','冒険','女性主人公'],synopsis:'星がひとつずつ消えていく時代。観測基地に一人残された青年カイの前に、空から少女が落ちてくる。彼女は星を「食べて」生きる存在だった。世界の終わりを記録する者と、終わらせる者の旅が始まる。'},
+  {id:'b04',title:'悪役令嬢ですが、婚約破棄の前に領地経営を始めます',vol:2,author:'柊こより',illust:'桃園みみ',label:'灯火ノベルズ',date:'2026-10-09',tags:['悪役令嬢','異世界','転生','女性主人公'],synopsis:'乙女ゲームの悪役令嬢に転生したエリザは、断罪イベントまでの一年で破産寸前の領地を立て直すと決めた。第2巻では隣国との交易路をめぐり、攻略対象のはずの王子と商談の席で向かい合うことに。'},
+  {id:'b05',title:'隣の席の元勇者が、なぜか俺にだけ甘い',vol:4,author:'三条 晴',illust:'ふゆの',label:'白鷺文庫',date:'2026-10-08',tags:['ラブコメ','学園','ファンタジー'],synopsis:'異世界を救って帰ってきた元勇者・天音は、普通の高校生活を送りたい。ただし隣の席の湊にだけは、なぜか世話を焼かずにいられない。文化祭編、ついに天音の「元仲間」たちが転校してくる。'},
+  {id:'b06',title:'迷宮食堂の看板娘',vol:1,author:'鳴海いと',illust:'ちさき',label:'群青ブックス',date:'2026-10-07',tags:['ダンジョン','料理','日常','ファンタジー'],synopsis:'迷宮の地下五階、冒険者たちが一息つく安全地帯に小さな食堂がある。看板娘のリタは、持ち込まれた魔物素材で今日も日替わり定食を考える。迷宮で働く人々の、おいしくて少しだけ危ない日常。'},
+  {id:'b07',title:'転生先は伝説の剣の「鞘」でした',vol:2,author:'九重カイ',illust:'藍',label:'ノクス文庫',date:'2026-10-07',tags:['異世界','転生','バトル','冒険'],synopsis:'目覚めたら伝説の聖剣——ではなく、その鞘になっていた。持ち主の少女剣士セラと旅を続ける「俺」は、抜かれないことで守る戦い方を覚えていく。第2巻、聖剣を狙う教団が動き出す。'},
+  {id:'b08',title:'きみの声が聞こえない夏',vol:1,author:'汐見なぎ',illust:'青葉',label:'スピカ文庫',date:'2026-10-07',tags:['青春','恋愛','日常'],synopsis:'高校二年の夏、ヘッドホンを外せない僕は、筆談でしか話さない転校生・凪と出会う。言葉を使わずに交わすノートの往復が、少しずつ二人の夏を形づくっていく。'},
+  {id:'b09',title:'竜騎士団の新米整備士',vol:1,author:'鉄谷ハヤト',illust:'shin',label:'群青ブックス',date:'2026-10-03',tags:['ファンタジー','バトル','冒険'],synopsis:'竜に乗れない少年トウマが配属されたのは、竜騎士団の整備班。鞍を直し、鱗を磨き、竜の機嫌をとるのが仕事だ。ある夜、誰も乗りこなせない老竜が、彼にだけ背を許す。'},
+  {id:'b10',title:'百鬼夜行の下宿屋',vol:2,author:'宵町しの',illust:'墨田ねこ',label:'灯火ノベルズ',date:'2026-10-03',tags:['ホラー','日常','青春'],synopsis:'家賃月一万円の下宿屋「よもぎ荘」の住人は、大学生の僕以外みんな妖怪だった。第2巻では、裏山の古い祠が壊されたことで、町に「よくないもの」が入りこむ。'},
+  {id:'b11',title:'最強賢者、引退して田舎で魔法塾を開く',vol:5,author:'森野ゆずる',illust:'柚木',label:'白鷺文庫',date:'2026-10-01',tags:['異世界','スローライフ','魔法','主人公最強'],synopsis:'国一番の賢者アルトは、引退して故郷の村で子ども向けの魔法塾を始めた。生徒たちが王都の魔法大会に出場することになり、かつての弟子たちと思わぬ再会を果たす第5巻。'},
+  {id:'b12',title:'戦国転生 茶屋の娘、天下を淹れる',vol:1,author:'千早あやめ',illust:'朱音',label:'灯火ノベルズ',date:'2026-10-01',tags:['転生','歴史','料理','女性主人公'],synopsis:'カフェ店員だった私が目覚めたのは、戦国時代の峠の茶屋。現代の知識で淹れた一杯が、通りがかった若武者の運命を変えてしまう。お茶と甘味で乱世を渡る、歴史グルメ転生譚。'},
+  {id:'b13',title:'機械仕掛けの魔女と二人きりの終末',vol:3,author:'高瀬ルカ',illust:'七原',label:'ノクス文庫',date:'2026-09-30',tags:['SF','魔法','冒険'],synopsis:'人類が去った地上で、機械の体を持つ魔女ミラと少年ユウは、最後の都市を目指して旅を続ける。第3巻、二人は凍った海の底に眠る「魔法の発電所」へたどり着く。'},
+  {id:'b14',title:'生徒会長は俺のラブコメを認めない',vol:2,author:'葛西ゆう',illust:'ぽめ',label:'スピカ文庫',date:'2026-09-30',tags:['ラブコメ','学園'],synopsis:'校内恋愛禁止を掲げる生徒会長・氷室は、恋愛相談部の部長である俺を目の敵にしている。だが相談に来る依頼人が、なぜか全員氷室の知り合いで——。'},
+  {id:'b15',title:'ダンジョン配信者、うっかり深層に落ちる',vol:3,author:'九重カイ',illust:'藍',label:'群青ブックス',date:'2026-09-25',tags:['ダンジョン','バトル','主人公最強'],synopsis:'登録者数三桁の配信者・蒼は、事故で未踏の深層に落下。生き延びるための戦闘がそのまま配信され、一夜で有名人に。第3巻では海外の攻略チームから共同配信の誘いが届く。'},
+  {id:'b16',title:'聖女をクビになったので、辺境で薬屋をはじめました',vol:1,author:'柊こより',illust:'桃園みみ',label:'灯火ノベルズ',date:'2026-09-25',tags:['異世界','スローライフ','女性主人公','魔法'],synopsis:'「お前の祈りは地味だ」と教会を追い出された聖女リーネ。辺境の町で開いた小さな薬屋は、彼女の地味な祈りのおかげで評判になっていく。'},
+  {id:'b17',title:'終電後の喫茶店で、彼女は推理する',vol:1,author:'雨宮 透',illust:'kona',label:'スピカ文庫',date:'2026-09-20',tags:['ミステリー','日常','青春'],synopsis:'終電を逃した夜だけ開いている喫茶店。店主の少女・灯は、客が持ち込む小さな謎をコーヒー一杯のあいだに解いてみせる。'},
+  {id:'b18',title:'魔王軍の経理担当です',vol:2,author:'鳴海いと',illust:'ちさき',label:'白鷺文庫',date:'2026-09-20',tags:['ファンタジー','日常','ラブコメ'],synopsis:'魔王軍に就職した人間の青年ロイの仕事は、四天王の経費精算。予算会議では魔王より怖い女幹部と火花を散らす。お仕事ファンタジー第2巻。'}
+];
+BOOKS.forEach((b, i) => b.i = i);
+const PAL = [
+  ['var(--color-neutral-800)','var(--color-neutral-100)'],
+  ['var(--color-neutral-300)','var(--color-neutral-900)'],
+  ['var(--color-accent)','var(--color-neutral-100)'],
+  ['var(--color-neutral-900)','var(--color-accent-400)'],
+  ['var(--color-neutral-500)','var(--color-neutral-100)'],
+  ['var(--color-accent-200)','var(--color-accent-800)'],
+  ['var(--color-neutral-200)','var(--color-accent-700)']
+];
+const RECS = [
+  {id:'b01',reason:'『最強賢者、引退して…』と同じ著者'},
+  {id:'b16',reason:'#スローライフ #異世界 をよく読むあなたへ'},
+  {id:'b06',reason:'#料理 #ファンタジー の読者に人気'},
+  {id:'b13',reason:'#魔法 の新刊'},
+  {id:'b04',reason:'#異世界 #転生 をよく読むあなたへ'},
+  {id:'b12',reason:'#料理 #転生 の新刊'}
+];
+const WD = '日月火水木金土';
+const fmtShort = s => { const d = new Date(s + 'T00:00:00'); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; };
+const fmtLong = s => { const d = new Date(s + 'T00:00:00'); return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`; };
+const byId = id => BOOKS.find(b => b.id === id);
+
+class Component extends DCLogic {
+  state = { view: 'home', id: null, from: 'home', query: '', tags: [], mode: 'and', sort: 'new', loggedIn: null };
+
+  go(view, extra = {}) { this.setState({ view, ...extra }); window.scrollTo(0, 0); }
+  open(id) { this.go('detail', { id, from: this.state.view === 'detail' ? this.state.from : this.state.view }); }
+  searchTag(t) { this.go('search', { tags: [t], query: '' }); }
+  toggleTag(t) { this.setState(s => ({ tags: s.tags.includes(t) ? s.tags.filter(x => x !== t) : [...s.tags, t] })); }
+
+  card(b, extra = {}) {
+    const [bg, fg] = PAL[b.i % PAL.length];
+    return { ...b, bg, fg, dateText: fmtShort(b.date) + ' 発売', tagLine: '#' + b.tags.slice(0, 3).join(' #'), open: () => this.open(b.id), ...extra };
+  }
+  matchQuery(b, q) {
+    if (!q) return true;
+    return [b.title, b.author, b.illust, b.label, b.synopsis, ...b.tags].some(s => s.toLowerCase().includes(q));
+  }
+
+  renderVals() {
+    const s = this.state, p = this.props;
+    const loggedIn = s.loggedIn ?? (p.startLoggedIn ?? true);
+    const cardMin = { 'コンパクト': '132px', '標準': '156px', '大きめ': '196px' }[p.coverSize ?? '標準'] || '156px';
+    const v = {
+      loggedIn, loggedOut: !loggedIn, cardMin, query: s.query,
+      isHome: s.view === 'home', isSearch: s.view === 'search', isDetail: s.view === 'detail',
+      navHomeColor: s.view === 'home' ? 'var(--color-accent)' : 'var(--color-text)',
+      navSearchColor: s.view === 'search' ? 'var(--color-accent)' : 'var(--color-text)',
+      goHome: () => this.go('home'),
+      goSearch: () => this.go('search'),
+      login: () => this.setState({ loggedIn: true }),
+      logout: () => this.setState({ loggedIn: false }),
+      onQuery: e => this.setState({ query: e.target.value, view: 'search' })
+    };
+
+    if (s.view === 'home') {
+      v.recs = RECS.map(r => this.card(byId(r.id), { reason: r.reason }));
+      const counts = TAGS.map(t => ({ name: t, n: BOOKS.filter(b => b.tags.includes(t)).length })).sort((a, b) => b.n - a.n).slice(0, 10);
+      v.popularTags = counts.map(c => ({ name: c.name, onClick: () => this.searchTag(c.name) }));
+      const sorted = [...BOOKS].sort((a, b) => b.date.localeCompare(a.date));
+      let groups;
+      if ((p.homeGrouping ?? '発売日') === 'レーベル') {
+        const labels = [...new Set(sorted.map(b => b.label))];
+        groups = labels.map(l => ({ title: l, sub: '最近の新刊', books: sorted.filter(b => b.label === l) }));
+      } else {
+        groups = [
+          { title: '今週の新刊', sub: '10/7 – 10/13', books: sorted.filter(b => b.date >= '2026-10-07') },
+          { title: '先週の新刊', sub: '9/30 – 10/6', books: sorted.filter(b => b.date >= '2026-09-30' && b.date < '2026-10-07') },
+          { title: '9月の新刊', sub: '9/1 – 9/29', books: sorted.filter(b => b.date < '2026-09-30') }
+        ];
+      }
+      v.groups = groups.map(g => ({ ...g, count: g.books.length, books: g.books.map(b => this.card(b)) }));
+    }
+
+    if (s.view === 'search') {
+      const q = s.query.trim().toLowerCase();
+      const base = BOOKS.filter(b => this.matchQuery(b, q));
+      let res = s.tags.length ? base.filter(b => s.mode === 'and' ? s.tags.every(t => b.tags.includes(t)) : s.tags.some(t => b.tags.includes(t))) : base;
+      res = [...res].sort((a, b) => s.sort === 'new' ? b.date.localeCompare(a.date) : a.title.localeCompare(b.title, 'ja'));
+      Object.assign(v, {
+        results: res.map(b => this.card(b)), resultCount: res.length, noResults: res.length === 0,
+        resultTitle: s.query.trim() ? `「${s.query.trim()}」の検索結果` : (s.tags.length ? 'タグで絞り込み' : 'すべての作品'),
+        hasTags: s.tags.length > 0,
+        modeLabel: s.mode === 'and' ? 'すべて含む：' : 'いずれかを含む：',
+        selectedChips: s.tags.map(t => ({ name: t, remove: () => this.toggleTag(t) })),
+        tagItems: TAGS.map(t => {
+          const on = s.tags.includes(t), n = base.filter(b => b.tags.includes(t)).length;
+          return { name: t, count: n, on, opacity: n || on ? 1 : 0.4, boxBg: on ? 'var(--color-accent)' : 'transparent', boxBorder: on ? 'var(--color-accent)' : 'var(--color-neutral-500)', toggle: () => this.toggleTag(t) };
+        }),
+        isAnd: s.mode === 'and', isOr: s.mode === 'or',
+        setAnd: () => this.setState({ mode: 'and' }), setOr: () => this.setState({ mode: 'or' }),
+        sortNew: s.sort === 'new', sortTitle: s.sort === 'title',
+        setSortNew: () => this.setState({ sort: 'new' }), setSortTitle: () => this.setState({ sort: 'title' }),
+        clearTags: () => this.setState({ tags: [] }),
+        resetSearch: () => this.setState({ tags: [], query: '', mode: 'and' })
+      });
+    }
+
+    if (s.view === 'detail') {
+      const b = byId(s.id) || BOOKS[0];
+      v.book = { ...this.card(b), dateLong: fmtLong(b.date) };
+      v.metaRows = [
+        { k: '著者', v: b.author }, { k: 'イラスト', v: b.illust },
+        { k: 'レーベル', v: b.label }, { k: '発売日', v: fmtLong(b.date) }
+      ];
+      v.detailTags = b.tags.map(t => ({ name: t, onClick: () => this.searchTag(t) }));
+      v.similar = BOOKS.filter(x => x.id !== b.id).map(x => {
+        const common = x.tags.filter(t => b.tags.includes(t)), same = x.author === b.author;
+        return { x, common, same, score: common.length + (same ? 2 : 0) };
+      }).filter(r => r.score > 0).sort((a, c) => c.score - a.score || c.x.date.localeCompare(a.x.date)).slice(0, 6)
+        .map(r => this.card(r.x, { reason: r.same ? '同じ著者' + (r.common.length ? ' · #' + r.common.slice(0, 2).join(' #') : '') : '共通：#' + r.common.slice(0, 3).join(' #') }));
+      v.backLabel = s.from === 'search' ? '検索結果に戻る' : 'ホームに戻る';
+      v.goBack = () => this.go(s.from || 'home');
+    }
+    return v;
+  }
+}
+</script>
+</body>
+</html>
