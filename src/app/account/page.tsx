@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { SectionHeading } from "@/components/common/section-heading";
-import { SeriesGrid } from "@/components/series/series-card";
+import { SeriesList } from "@/components/series/series-list";
 import { cardsByIds } from "@/features/series/queries";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 
@@ -43,7 +43,7 @@ async function Account() {
       <section className="flex flex-col gap-5">
         <SectionHeading title="お気に入り" note={`${favorites.length}作品`} />
         {favorites.length ? (
-          <SeriesGrid cards={favorites} variant="list" />
+          <SeriesList cards={favorites} layout="syn" />
         ) : (
           <p className="text-sm text-muted-foreground">作品の詳細ページで「お気に入りに追加」を押すと、ここに並びます。</p>
         )}
@@ -51,7 +51,7 @@ async function Account() {
       <section className="flex flex-col gap-5">
         <SectionHeading title="読了" note={`${reads.length}作品`} />
         {reads.length ? (
-          <SeriesGrid cards={reads} variant="list" />
+          <SeriesList cards={reads} layout="syn" />
         ) : (
           <p className="text-sm text-muted-foreground">作品の詳細ページで「読み終わった」を押すと、ここに並びます。</p>
         )}

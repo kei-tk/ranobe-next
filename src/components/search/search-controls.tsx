@@ -68,8 +68,9 @@ export function SearchControls({ state }: { state: SearchState }) {
         label="表示"
         value={state.view}
         options={[
-          { value: "cover", label: "書影" },
-          { value: "list", label: "リスト" },
+          { value: "card", label: "カード" },
+          { value: "table", label: "表" },
+          { value: "syn", label: "あらすじ" },
         ]}
         href={(view) => searchHref({ ...state, view })}
       />

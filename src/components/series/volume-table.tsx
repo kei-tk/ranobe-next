@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 
-import { CoverImage } from "@/components/common/cover-image";
 import { Button } from "@/components/ui/button";
 import type { Volume } from "@/features/series/types";
 import { formatLongDate } from "@/lib/format";
 
 const INITIAL = 10;
 
-// 巻一覧 (docs/ui-design.md §3.3.1)。10巻を超えたら残りは折りたたむ。行を押すと版元ドットコムのページを開く
+// 巻一覧 (書影なし: 巻 | タイトル | 発売日)。10巻を超えたら残りは折りたたむ。行を押すと版元ドットコムのページを開く
 export function VolumeTable({ volumes }: { volumes: Volume[] }) {
   const [open, setOpen] = useState(false);
   const rows = open ? volumes : volumes.slice(0, INITIAL);
-  const grid = "grid grid-cols-[64px_minmax(0,1fr)_96px] gap-4 sm:grid-cols-[64px_40px_minmax(0,1fr)_96px]";
+  const grid = "grid grid-cols-[64px_minmax(0,1fr)_110px] gap-5";
 
   return (
     <div className="flex flex-col">
-      <div className={`${grid} border-b border-border py-2 text-[11px] tracking-[.06em] text-muted-foreground`} aria-hidden>
+      <div
+        className={`${grid} border-t-2 border-b border-border py-2 text-[11px] tracking-[.06em] text-muted-foreground`}
+        aria-hidden
+      >
         <span>巻</span>
-        <span className="hidden sm:block">書影</span>
         <span>タイトル</span>
         <span>発売日</span>
       </div>
@@ -30,17 +31,14 @@ export function VolumeTable({ volumes }: { volumes: Volume[] }) {
               href={`https://www.hanmoto.com/bd/isbn/${v.isbn}`}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${grid} items-center border-b border-line py-2.5 text-foreground no-underline hover:bg-accent`}
+              className={`${grid} items-baseline border-b border-line py-3 text-foreground no-underline hover:bg-accent`}
             >
-              <span className="text-[15px] font-extrabold">
+              <span className="text-xl font-extrabold">
                 {v.volume_number != null ? `${v.volume_number}${v.volume_number_sub ? ` ${v.volume_number_sub}` : ""}` : "—"}
               </span>
-              <span className="hidden sm:block">
-                <CoverImage src={v.cover_image_url} alt={v.title ?? ""} sizes="40px" />
-              </span>
               <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-[15px] leading-snug font-bold">{v.title}</span>
-                {v.hasSpecialEdition ? <span className="text-[11px] font-bold text-accent-text">特装版あり</span> : null}
+                <span className="text-[15px] leading-[1.4] font-bold">{v.title}</span>
+                {v.hasSpecialEdition ? <span className="text-[11px] text-accent-text">特装版あり</span> : null}
               </span>
               <span className="text-[13px]">{formatLongDate(v.published_date)}</span>
             </a>

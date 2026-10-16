@@ -41,7 +41,7 @@ export async function getSeriesDetail(id: string): Promise<{ series: SeriesDetai
   const [card, extra, books] = await Promise.all([
     // 特装版・予約だけのシリーズは cards_by_ids が返さないので、詳細も「見つからない」になる
     supabase.rpc("cards_by_ids", { p_ids: [id] }),
-    supabase.from("openbd_test_series").select("synopsis,description,tagline").eq("id", id).maybeSingle(),
+    supabase.from("openbd_test_series").select("tagline").eq("id", id).maybeSingle(),
     supabase
       .from("openbd_test_books")
       .select("isbn,title,volume_number,volume_number_sub,attached_to_isbn,published_date,cover_image_url")
@@ -71,7 +71,6 @@ export async function getSeriesDetail(id: string): Promise<{ series: SeriesDetai
   return {
     series: {
       ...base,
-      synopsis: extra.data?.synopsis ?? extra.data?.description ?? null,
       tagline: extra.data?.tagline ?? null,
     },
     volumes,

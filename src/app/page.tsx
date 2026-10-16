@@ -4,12 +4,13 @@ import { Suspense } from "react";
 
 import { SectionHeading } from "@/components/common/section-heading";
 import { ReleaseCalendar } from "@/components/home/release-calendar";
-import { SeriesGrid } from "@/components/series/series-card";
+import { SeriesList } from "@/components/series/series-list";
 import { Button } from "@/components/ui/button";
 import { getRecentReleases, getRecommendationsForMe } from "@/features/series/queries";
 import { getCurrentUser } from "@/lib/supabase/server";
 
-const RELEASE_COUNT = 12;
+// あらすじ型では1件が大きいので、デザインどおり6件にする
+const RELEASE_COUNT = 6;
 
 // ホーム (docs/ui-design.md §3.1)
 export default function HomePage() {
@@ -38,7 +39,7 @@ async function RecentReleases() {
   const candidates = await getRecentReleases();
   // ランダムな値はリクエストごとに変わるので、ここから先はリクエストのたびに描くと Next.js に伝える
   await connection();
-  return <SeriesGrid cards={pickRandom(candidates, RELEASE_COUNT)} variant="release" />;
+  return <SeriesList cards={pickRandom(candidates, RELEASE_COUNT)} layout="syn" />;
 }
 
 async function Calendar() {
@@ -77,7 +78,7 @@ async function ForYou() {
     <section className="flex flex-col gap-5">
       <SectionHeading title="あなたへのおすすめ" note="お気に入り・読了した作品から選んでいます" />
       {recs.length ? (
-        <SeriesGrid cards={recs} variant="recommend" />
+        <SeriesList cards={recs} layout="syn" />
       ) : (
         <p className="text-sm text-muted-foreground">
           作品の詳細ページで「お気に入りに追加」「読み終わった」を押すと、ここにおすすめが表示されます。
@@ -89,14 +90,14 @@ async function ForYou() {
 
 function GridSkeleton({ count }: { count: number }) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(156px,1fr))] gap-x-5 gap-y-8" aria-hidden>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,440px),1fr))] gap-x-8" aria-hidden>
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="flex flex-col gap-2.5">
-          <div className="aspect-[3/4] animate-pulse bg-muted" />
-          <div className="h-4 w-3/4 animate-pulse bg-muted" />
+        <div key={i} className="flex flex-col gap-2 border-t-2 border-border pt-[18px] pb-[22px]">
+          <div className="h-6 w-3/4 animate-pulse bg-muted" />
+          <div className="h-3 w-1/2 animate-pulse bg-muted" />
+          <div className="h-16 animate-pulse bg-muted" />
         </div>
       ))}
     </div>
   );
 }
-

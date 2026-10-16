@@ -1,7 +1,8 @@
 // さがす画面の条件 ⇄ URL クエリ (docs/ui-design.md §3.2)。サーバーとクライアントの両方で使う
 export type TagMode = "and" | "or";
 export type SortKey = "new" | "popularity" | "title";
-export type ViewKey = "cover" | "list";
+// 書影なし版の表示: あらすじ型 (初期値) / 文字カード型 / 目録型
+export type ViewKey = "syn" | "card" | "table";
 
 export type SearchState = {
   q: string;
@@ -38,7 +39,7 @@ export function parseSearchState(raw: RawParams): SearchState {
     subGenres: list(raw, "sub"),
     mode: mode === "or" ? "or" : "and",
     sort: sort === "popularity" || sort === "title" ? sort : "new",
-    view: view === "list" ? "list" : "cover",
+    view: view === "card" || view === "table" ? view : "syn",
     author: get(raw, "author").trim().slice(0, 100),
   };
 }
@@ -53,7 +54,7 @@ export function toQueryString(s: Partial<SearchState>): string {
   if (s.subGenres?.length) p.set("sub", s.subGenres.join(","));
   if (s.mode === "or") p.set("mode", "or");
   if (s.sort && s.sort !== "new") p.set("sort", s.sort);
-  if (s.view === "list") p.set("view", "list");
+  if (s.view && s.view !== "syn") p.set("view", s.view);
   const qs = p.toString();
   return qs ? `?${qs}` : "";
 }

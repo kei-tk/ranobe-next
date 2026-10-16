@@ -12,13 +12,14 @@ export type SeriesCard = {
   atmosphere_tags: string[];
   sub_genre_tags: string[];
   cover_image_url: string | null;
+  // 一覧のあらすじ (038。synopsis、無ければ description)
+  synopsis: string | null;
 };
 
 // カードの上に朱色で出すラベル (推薦理由・共通点。docs/ui-design.md §5)
 export type CardWithReason = SeriesCard & { reason?: string };
 
 export type SeriesDetail = SeriesCard & {
-  synopsis: string | null;
   tagline: string | null;
 };
 
