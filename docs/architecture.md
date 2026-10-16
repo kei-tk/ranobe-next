@@ -192,7 +192,7 @@ ranobeNext/
 | `recommend_series` (035) | `p_series_ids uuid[]`、`p_limit int = 12` | `(series_id uuid, score real)` | おすすめの本体 |
 | `recommend_for_me` (035) | `p_limit int = 12` | `(series_id uuid, score real)` | ホーム (ログイン時) |
 
-- `search_series` / `facet_counts` / `recent_releases` は、Next.js の画面を作るときに migration (036 以降) で足す
+- `search_series` / `facet_counts` / `recent_releases` は 036 で作成済み。どれも `series_cards` (カード用の細いテーブル) を読む。実測 (2026-10-16): 0.08〜0.24秒
 - 推薦理由・共通点のラベル (ui-design.md §5) も、Next.js の実装に合わせて戻り値に足す
 - 共通: `SECURITY INVOKER`、`search_path` を固定、EXECUTE は PUBLIC から外して anon / authenticated に付ける (`recommend_for_me` は authenticated だけ)
 - 034 で作った `search_semantic` (自然言語検索) は使わない。消すかどうかは HNSW と合わせて決める (§12-6)
@@ -237,6 +237,7 @@ ranobeNext/
 | テーブル | 列 | 目的 |
 |---|---|---|
 | `series_vectors` (035) | `series_id` (PK、FK)、`author`、`genre_tags` (GIN)、`theme` / `mood` / `reader` (`vector(1536)`)、`updated_at` | 似ているシリーズとおすすめを、その場で計算するためのベクトル |
+| `series_cards` (036) | `series_id` (PK、FK)、タイトル・著者・イラスト・レーベル・巻数・最新刊の発売日・人気・3分類のタグ・表紙 (カバーのある最新巻)・`search_text` (pg_trgm の GIN) | 一覧・検索・チップの件数・新刊。親シリーズ 8,493件、49MB。`openbd_test_series` と `openbd_test_books` のトリガーで同期する |
 
 - RLS を有効にし、anon / authenticated は読むだけ。書き込みはトリガー (SECURITY DEFINER) だけ
 
