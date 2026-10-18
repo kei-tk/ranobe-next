@@ -13,7 +13,7 @@ const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"], variable: "--font-noto-sans-jp", preload: false });
 
 export const metadata: Metadata = {
-  title: { default: "ラノベファインダー", template: "%s | ラノベファインダー" },
+  title: { default: "ラノベ書庫", template: "%s | ラノベ書庫" },
   description: "ジャンルや雰囲気から、次に読むライトノベルを探す",
 };
 

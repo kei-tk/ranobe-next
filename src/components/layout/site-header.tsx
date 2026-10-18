@@ -15,7 +15,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 text-foreground no-underline">
           <span aria-hidden className="block size-[18px] bg-brand" />
-          <span className="text-[19px] font-black">ラノベファインダー</span>
+          <span className="text-[19px] font-black">ラノベ書庫</span>
         </Link>
         <Suspense fallback={<NavLinks />}>
           <HeaderNav />

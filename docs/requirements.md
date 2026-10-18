@@ -1,6 +1,6 @@
 # ranobeNext 要件定義書
 
-ライトノベル推薦・検索アプリ「Ranobe Finder」を Next.js で作り直すための要件定義。
+ライトノベル推薦・検索アプリ「ラノベ書庫」(旧称 Ranobe Finder)を Next.js で作り直すための要件定義。
 今の実装: `/Users/kei/Downloads/ライトノベル` (Vite + React SPA + FastAPI + Supabase)。
 
 - 作成日: 2026-10-13 / 更新: 2026-10-15
