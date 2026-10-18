@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 
+import { SeriesGrid } from "@/components/series/series-card";
 import { SeriesList } from "@/components/series/series-list";
 import { Button } from "@/components/ui/button";
 import { toQueryString, type SearchState } from "@/features/search/params";
 import type { SeriesCard } from "@/features/series/types";
 
-// 検索結果 (あらすじ / カード / 表) と「さらに見る」。最初の48件はサーバーで描き、続きは /api/search から取る。
+// 検索結果 (書影あり: 書影 / リスト、書影なし: あらすじ / カード / 表) と「さらに見る」。最初の48件はサーバーで描き、続きは /api/search から取る。
 // 条件が変わると親が key を変えるので、ここの状態 (追加で読んだ分) もリセットされる
 export function ResultsView({
   state,
@@ -42,11 +43,15 @@ export function ResultsView({
 
   return (
     <div className="flex flex-col gap-6">
-      <SeriesList
-        cards={cards}
-        layout={state.view}
-        highlight={[...state.genres, ...state.atmospheres, ...state.subGenres]}
-      />
+      {state.view === "cover" || state.view === "list" ? (
+        <SeriesGrid cards={cards} variant={state.view} />
+      ) : (
+        <SeriesList
+          cards={cards}
+          layout={state.view}
+          highlight={[...state.genres, ...state.atmospheres, ...state.subGenres]}
+        />
+      )}
       {cards.length < total ? (
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={loadMore} disabled={pending}>

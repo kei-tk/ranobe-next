@@ -4,13 +4,11 @@ import { Suspense } from "react";
 
 import { SectionHeading } from "@/components/common/section-heading";
 import { ReleaseCalendar } from "@/components/home/release-calendar";
-import { SeriesList } from "@/components/series/series-list";
+import { RELEASE_COUNT, SeriesCollection } from "@/components/series/series-collection";
 import { Button } from "@/components/ui/button";
 import { getRecentReleases, getRecommendationsForMe } from "@/features/series/queries";
 import { getCurrentUser } from "@/lib/supabase/server";
-
-// あらすじ型では1件が大きいので、デザインどおり6件にする
-const RELEASE_COUNT = 6;
+import { SHOW_COVERS } from "@/lib/variant";
 
 // ホーム (docs/ui-design.md §3.1)
 export default function HomePage() {
@@ -39,7 +37,7 @@ async function RecentReleases() {
   const candidates = await getRecentReleases();
   // ランダムな値はリクエストごとに変わるので、ここから先はリクエストのたびに描くと Next.js に伝える
   await connection();
-  return <SeriesList cards={pickRandom(candidates, RELEASE_COUNT)} layout="syn" />;
+  return <SeriesCollection cards={pickRandom(candidates, RELEASE_COUNT)} kind="release" />;
 }
 
 async function Calendar() {
@@ -78,7 +76,7 @@ async function ForYou() {
     <section className="flex flex-col gap-5">
       <SectionHeading title="あなたへのおすすめ" note="お気に入り・読了した作品から選んでいます" />
       {recs.length ? (
-        <SeriesList cards={recs} layout="syn" />
+        <SeriesCollection cards={recs} kind="recommend" />
       ) : (
         <p className="text-sm text-muted-foreground">
           作品の詳細ページで「お気に入りに追加」「読み終わった」を押すと、ここにおすすめが表示されます。
@@ -89,6 +87,18 @@ async function ForYou() {
 }
 
 function GridSkeleton({ count }: { count: number }) {
+  if (SHOW_COVERS) {
+    return (
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(156px,1fr))] gap-x-5 gap-y-8" aria-hidden>
+        {Array.from({ length: count }, (_, i) => (
+          <div key={i} className="flex flex-col gap-2.5">
+            <div className="aspect-[3/4] animate-pulse bg-muted" />
+            <div className="h-4 w-3/4 animate-pulse bg-muted" />
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,440px),1fr))] gap-x-8" aria-hidden>
       {Array.from({ length: count }, (_, i) => (

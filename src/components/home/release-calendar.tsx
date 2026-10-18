@@ -5,10 +5,11 @@ import { useState } from "react";
 import { SeriesList } from "@/components/series/series-list";
 import { Button } from "@/components/ui/button";
 import type { SeriesCard } from "@/features/series/types";
+import { SHOW_COVERS } from "@/lib/variant";
 
 const STEP = 30;
 
-// 新刊カレンダー (目録型の表。書影の列なし)。候補は数十〜100件なのでまとめて受け取り、30行ずつ出す
+// 新刊カレンダー (目録型の表。書影ありの版だけ書影の列を出す)。候補は数十〜100件なのでまとめて受け取り、30行ずつ出す
 export function ReleaseCalendar({ cards }: { cards: SeriesCard[] }) {
   const [shown, setShown] = useState(STEP);
 
@@ -18,7 +19,7 @@ export function ReleaseCalendar({ cards }: { cards: SeriesCard[] }) {
         <h2 className="m-0 text-[26px]">新刊カレンダー</h2>
         <span className="text-xs text-muted-foreground">{cards.length}シリーズ</span>
       </div>
-      <SeriesList cards={cards.slice(0, shown)} layout="table" lead="date" />
+      <SeriesList cards={cards.slice(0, shown)} layout="table" lead="date" showCover={SHOW_COVERS} />
       {shown < cards.length ? (
         <Button variant="outline" className="self-start" onClick={() => setShown((n) => n + STEP)}>
           さらに見る ({cards.length - shown}件)

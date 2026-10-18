@@ -367,6 +367,7 @@ Supabase の自動の日次バックアップ (Pro は7日分) は長く保管�
 | `NEXT_PUBLIC_SUPABASE_URL` | 公開 | |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 公開 | Supabase の推奨の名前。今のプロジェクトは legacy の anon キーを入れている (publishable キーに移行したら差し替える) |
 | `REVALIDATE_SECRET` | サーバーだけ | パイプラインからの再検証 |
+| `NEXT_PUBLIC_UI_VARIANT` | 公開 (ビルド時に埋め込み) | 見た目の版。`cover` = 書影あり (既定) / `nocover` = 書影なし。Vercel のプロジェクトを2つ作り、この値だけを変える (ui-design.md §8) |
 
 ---
 

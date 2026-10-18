@@ -1,7 +1,7 @@
 # ranobeNext
 
 ライトノベルを、ジャンルや雰囲気から探す「ラノベファインダー」の Next.js 版。
-設計は [docs/](docs/) (要件定義・アーキテクチャ・画面設計) を参照。
+設計は [docs/](docs/) (要件定義・アーキテクチャ・画面設計) を参照。前のアプリから作り直して工夫した点は [docs/portfolio.md](docs/portfolio.md) にまとめてある。
 
 - Next.js 16 (App Router、Cache Components) / React 19 / TypeScript
 - Tailwind CSS v4 + shadcn/ui (Radix、Modernist デザインに合わせて書き換え済み)

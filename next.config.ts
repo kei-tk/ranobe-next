@@ -3,6 +3,8 @@ import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 書影あり / なしの開発サーバーを同時に動かすとき、ビルドの置き場所が重ならないように分ける
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,

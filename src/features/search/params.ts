@@ -1,8 +1,26 @@
 // さがす画面の条件 ⇄ URL クエリ (docs/ui-design.md §3.2)。サーバーとクライアントの両方で使う
+import { UI_VARIANT } from "@/lib/variant";
+
 export type TagMode = "and" | "or";
 export type SortKey = "new" | "popularity" | "title";
-// 書影なし版の表示: あらすじ型 (初期値) / 文字カード型 / 目録型
-export type ViewKey = "syn" | "card" | "table";
+// 表示の種類。版によって選べるものと初期値が違う
+//   書影あり: 書影 (初期値) / リスト
+//   書影なし: あらすじ型 (初期値) / 文字カード型 / 目録型
+export type ViewKey = "cover" | "list" | "syn" | "card" | "table";
+
+export const VIEW_OPTIONS: { value: ViewKey; label: string }[] =
+  UI_VARIANT === "cover"
+    ? [
+        { value: "cover", label: "書影" },
+        { value: "list", label: "リスト" },
+      ]
+    : [
+        { value: "card", label: "カード" },
+        { value: "table", label: "表" },
+        { value: "syn", label: "あらすじ" },
+      ];
+
+export const DEFAULT_VIEW: ViewKey = UI_VARIANT === "cover" ? "cover" : "syn";
 
 export type SearchState = {
   q: string;
@@ -39,7 +57,7 @@ export function parseSearchState(raw: RawParams): SearchState {
     subGenres: list(raw, "sub"),
     mode: mode === "or" ? "or" : "and",
     sort: sort === "popularity" || sort === "title" ? sort : "new",
-    view: view === "card" || view === "table" ? view : "syn",
+    view: VIEW_OPTIONS.some((o) => o.value === view) ? (view as ViewKey) : DEFAULT_VIEW,
     author: get(raw, "author").trim().slice(0, 100),
   };
 }
@@ -54,7 +72,7 @@ export function toQueryString(s: Partial<SearchState>): string {
   if (s.subGenres?.length) p.set("sub", s.subGenres.join(","));
   if (s.mode === "or") p.set("mode", "or");
   if (s.sort && s.sort !== "new") p.set("sort", s.sort);
-  if (s.view && s.view !== "syn") p.set("view", s.view);
+  if (s.view && s.view !== DEFAULT_VIEW) p.set("view", s.view);
   const qs = p.toString();
   return qs ? `?${qs}` : "";
 }

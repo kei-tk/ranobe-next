@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+import { CoverImage } from "@/components/common/cover-image";
+
 import { tagLine, type CardWithReason } from "@/features/series/types";
 import { formatDotDate, formatShortDate, formatVolumes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-// 書影を使わない一覧 (design/mock-nocover「ラノベファインダー 書影なし」)。
+// 文字中心の一覧 (design/mock-nocover「ラノベファインダー 書影なし」)。目録型だけは書影の列を付けられる (書影ありの版の新刊カレンダー)。
 //   syn   あらすじ型: タイトル・メタ情報・あらすじ3行・タグ。初期値
 //   card  文字カード型: 罫線で区切ったマス目に、巻数を大きく
 //   table 目録型: 行ごとの表
@@ -15,6 +17,7 @@ export function SeriesList({
   layout,
   highlight = [],
   lead = "date",
+  showCover = false,
 }: {
   cards: CardWithReason[];
   layout: ListLayout;
@@ -22,9 +25,11 @@ export function SeriesList({
   highlight?: string[];
   // 目録型の左端の列: 発売日 か 順位
   lead?: "date" | "rank";
+  // 目録型に書影の列を出す (書影ありの版だけ)
+  showCover?: boolean;
 }) {
   if (layout === "card") return <TextCardGrid cards={cards} />;
-  if (layout === "table") return <SeriesTable cards={cards} lead={lead} />;
+  if (layout === "table") return <SeriesTable cards={cards} lead={lead} showCover={showCover} />;
   return <SynopsisList cards={cards} highlight={highlight} />;
 }
 
@@ -105,12 +110,15 @@ function TextCardGrid({ cards }: { cards: CardWithReason[] }) {
 }
 
 // 目録型: 発売日 (または順位) | タイトル / 著者 | レーベル | 巻数。スマホではレーベルと巻数をタイトルの下にまとめる
-function SeriesTable({ cards, lead }: { cards: CardWithReason[]; lead: "date" | "rank" }) {
-  const grid = "grid grid-cols-[72px_minmax(0,1fr)] gap-5 sm:grid-cols-[72px_minmax(0,1fr)_140px_64px]";
+function SeriesTable({ cards, lead, showCover }: { cards: CardWithReason[]; lead: "date" | "rank"; showCover: boolean }) {
+  const grid = showCover
+    ? "grid grid-cols-[72px_52px_minmax(0,1fr)] gap-5 sm:grid-cols-[72px_52px_minmax(0,1fr)_140px_64px]"
+    : "grid grid-cols-[72px_minmax(0,1fr)] gap-5 sm:grid-cols-[72px_minmax(0,1fr)_140px_64px]";
   return (
     <div className="flex flex-col">
       <div className={`${grid} border-b border-border py-2 text-[11px] tracking-[.06em] text-muted-foreground`} aria-hidden>
         <span>{lead === "rank" ? "No." : "最新刊"}</span>
+        {showCover ? <span>書影</span> : null}
         <span>タイトル / 著者</span>
         <span className="hidden sm:block">レーベル</span>
         <span className="hidden sm:block">巻数</span>
@@ -125,6 +133,7 @@ function SeriesTable({ cards, lead }: { cards: CardWithReason[]; lead: "date" | 
               <span className="text-xl font-extrabold tracking-[-.01em]">
                 {lead === "rank" ? String(i + 1).padStart(2, "0") : formatDotDate(c.latest_published_date)}
               </span>
+              {showCover ? <CoverImage src={c.cover_image_url} alt={c.series_title} sizes="52px" /> : null}
               <span className="flex min-w-0 flex-col gap-[3px]">
                 {c.reason ? <span className="text-[11px] font-bold text-accent-text">{c.reason}</span> : null}
                 <span className="text-[15px] leading-snug font-bold">{c.series_title}</span>

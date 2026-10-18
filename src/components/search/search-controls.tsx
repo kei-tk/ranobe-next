@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { searchHref, selectedTags, toggleTag, type SearchState } from "@/features/search/params";
+import { VIEW_OPTIONS, searchHref, selectedTags, toggleTag, type SearchState } from "@/features/search/params";
 import { cn } from "@/lib/utils";
 
 // 2〜3択の切り替え (Segmented)。URL を書き換えるリンクにしているので、JavaScript が無くても動く
@@ -67,11 +67,7 @@ export function SearchControls({ state }: { state: SearchState }) {
       <Segmented
         label="表示"
         value={state.view}
-        options={[
-          { value: "card", label: "カード" },
-          { value: "table", label: "表" },
-          { value: "syn", label: "あらすじ" },
-        ]}
+        options={VIEW_OPTIONS}
         href={(view) => searchHref({ ...state, view })}
       />
       {hasFilter ? (
