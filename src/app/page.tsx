@@ -7,6 +7,7 @@ import { ReleaseCalendar } from "@/components/home/release-calendar";
 import { RELEASE_COUNT, SeriesCollection } from "@/components/series/series-collection";
 import { Button } from "@/components/ui/button";
 import { getRecentReleases, getRecommendationsForMe } from "@/features/series/queries";
+import { pickRandom } from "@/lib/random";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { SHOW_COVERS } from "@/lib/variant";
 
@@ -15,7 +16,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-14">
       <Suspense fallback={<div className="h-24" aria-hidden />}>
-        <ForYou />
+        <ForYou /> 
       </Suspense>
 
       <section className="flex flex-col gap-5">
@@ -44,15 +45,6 @@ async function Calendar() {
   return <ReleaseCalendar cards={await getRecentReleases()} />;
 }
 
-function pickRandom<T>(items: T[], n: number): T[] {
-  const a = [...items];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a.slice(0, n);
-}
-
 // 「あなたへのおすすめ」はログイン状態で中身が変わるので、Suspense で分けてリクエストごとに描く
 async function ForYou() {
   const user = await getCurrentUser();
@@ -71,7 +63,7 @@ async function ForYou() {
       </div>
     );
   }
-  const recs = await getRecommendationsForMe(6);
+  const recs = await getRecommendationsForMe(8);
   return (
     <section className="flex flex-col gap-5">
       <SectionHeading title="あなたへのおすすめ" note="お気に入り・読了した作品から選んでいます" />

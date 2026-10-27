@@ -95,20 +95,22 @@ function rarestShared(a: string[], b: string[], counts: Map<string, number>, tak
     .slice(0, take);
 }
 
-// 似ているシリーズ (035 の similar_series をその場で計算)。共通点のラベルも付ける
-export async function getSimilarSeries(base: SeriesCard, limit = 6): Promise<CardWithReason[]> {
+// 似ているシリーズの候補 (035 の similar_series をその場で計算)。似ている順に最大 pool 件で、共通点のラベルも付ける。
+// 表示する件数はここでは選ばない (候補だけをキャッシュし、どれを出すかは表示のたびにページ側で選ぶ)
+export async function getSimilarSeries(base: SeriesCard, pool = 30): Promise<CardWithReason[]> {
   "use cache";
   cacheTag("series", `series:${base.series_id}`);
   cacheLife("hours");
   const supabase = createPublicClient();
-  const { data, error } = await supabase.rpc("similar_series", { p_series_id: base.series_id, p_limit: limit + 6 });
+  // 未発売の作品は cards_by_ids で外れるので、その分を多めに取る
+  const { data, error } = await supabase.rpc("similar_series", { p_series_id: base.series_id, p_limit: pool + 6 });
   if (error) throw error;
   const [cards, tagCounts] = await Promise.all([
     cardsByIds((data ?? []).map((r: { series_id: string }) => r.series_id), supabase),
     getAllTagCounts(),
   ]);
   const genreCounts = new Map(tagCounts.filter((t) => t.category === "genre").map((t) => [t.tag, t.n]));
-  return cards.slice(0, limit).map((c) => {
+  return cards.slice(0, pool).map((c) => {
     const shared = rarestShared(c.genre_tags, base.genre_tags, genreCounts, 2);
     const tags = shared.map((t) => `#${t}`).join(" ");
     const sameAuthor = Boolean(c.author && c.author === base.author);
@@ -121,7 +123,7 @@ export async function getSimilarSeries(base: SeriesCard, limit = 6): Promise<Car
 // ---------------------------------------------------------------------------
 
 // あなたへのおすすめ (035 の recommend_for_me)。推薦理由は、元にした作品との関係から付ける
-export async function getRecommendationsForMe(limit = 6): Promise<CardWithReason[]> {
+export async function getRecommendationsForMe(limit = 8): Promise<CardWithReason[]> {
   const supabase = await createClient();
   const [{ data, error }, fav, read] = await Promise.all([
     supabase.rpc("recommend_for_me", { p_limit: limit }),

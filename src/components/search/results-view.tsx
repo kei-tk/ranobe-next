@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { SeriesGrid } from "@/components/series/series-card";
+import { FIRST_ROW, SeriesGrid } from "@/components/series/series-card";
 import { SeriesList } from "@/components/series/series-list";
 import { Button } from "@/components/ui/button";
 import { toQueryString, type SearchState } from "@/features/search/params";
@@ -44,7 +44,11 @@ export function ResultsView({
   return (
     <div className="flex flex-col gap-6">
       {state.view === "cover" || state.view === "list" ? (
-        <SeriesGrid cards={cards} variant={state.view} />
+        <SeriesGrid
+          cards={cards}
+          variant={state.view}
+          eagerCount={state.view === "cover" ? FIRST_ROW.cover : FIRST_ROW.card}
+        />
       ) : (
         <SeriesList
           cards={cards}

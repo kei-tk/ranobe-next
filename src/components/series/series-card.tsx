@@ -8,14 +8,27 @@ import { cn } from "@/lib/utils";
 export type CardVariant = "recommend" | "release" | "list" | "cover" | "similar";
 
 // 作品カード (docs/ui-design.md §2.1)。カード全体がリンクで、hover で文字を朱色にする
-export function SeriesCardView({ card, variant }: { card: CardWithReason; variant: CardVariant }) {
+export function SeriesCardView({
+  card,
+  variant,
+  eager = false,
+}: {
+  card: CardWithReason;
+  variant: CardVariant;
+  eager?: boolean;
+}) {
   const href = `/series/${card.series_id}`;
   const releaseLine = `${formatShortDate(card.latest_published_date)} 発売 · ${formatVolumes(card.volume_count)}`;
 
   if (variant === "cover") {
     return (
       <Link href={href} title={card.series_title} className="group relative block overflow-hidden no-underline">
-        <CoverImage src={card.cover_image_url} alt={card.series_title} sizes="(min-width: 1240px) 130px, 30vw" />
+        <CoverImage
+          src={card.cover_image_url}
+          alt={card.series_title}
+          sizes="(min-width: 1240px) 130px, 30vw"
+          eager={eager}
+        />
         {/* マウスを乗せると情報を重ねる。マウスの無い端末では下端に帯で常に出す */}
         <div
           className={cn(
@@ -36,7 +49,7 @@ export function SeriesCardView({ card, variant }: { card: CardWithReason; varian
 
   return (
     <Link href={href} className="group flex min-w-0 flex-col gap-2.5 text-foreground no-underline">
-      <CoverImage src={card.cover_image_url} alt={card.series_title} />
+      <CoverImage src={card.cover_image_url} alt={card.series_title} eager={eager} />
       <div className="flex flex-col gap-[3px]">
         {(variant === "recommend" || variant === "similar") && card.reason ? (
           <span className="text-[11px] leading-snug font-bold text-accent-text">{card.reason}</span>
@@ -52,8 +65,21 @@ export function SeriesCardView({ card, variant }: { card: CardWithReason; varian
   );
 }
 
+// 1行に並ぶ最大の枚数 (本文の幅 1192px で計算)。画面の最初に見える行の書影は遅延読み込みしない
+//   標準: (1192 + 20) / (156 + 20) → 6枚 / 書影ビュー: (1192 + 6) / (124 + 6) → 9枚
+export const FIRST_ROW = { card: 6, cover: 9 } as const;
+
 // カードのグリッド (cardSize「標準」: 最小 156px、間隔 縦32 横20)。書影ビューは最小 124px、間隔 6
-export function SeriesGrid({ cards, variant }: { cards: CardWithReason[]; variant: CardVariant }) {
+// eagerCount: 先頭から何枚をすぐ読み込むか (画面の上にあるグリッドだけで指定する)
+export function SeriesGrid({
+  cards,
+  variant,
+  eagerCount = 0,
+}: {
+  cards: CardWithReason[];
+  variant: CardVariant;
+  eagerCount?: number;
+}) {
   return (
     <div
       className={cn(
@@ -63,8 +89,8 @@ export function SeriesGrid({ cards, variant }: { cards: CardWithReason[]; varian
           : "grid-cols-[repeat(auto-fill,minmax(156px,1fr))] gap-x-5 gap-y-8",
       )}
     >
-      {cards.map((c) => (
-        <SeriesCardView key={c.series_id} card={c} variant={variant} />
+      {cards.map((c, i) => (
+        <SeriesCardView key={c.series_id} card={c} variant={variant} eager={i < eagerCount} />
       ))}
     </div>
   );

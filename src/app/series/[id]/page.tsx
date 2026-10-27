@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { CoverImage } from "@/components/common/cover-image";
@@ -14,6 +15,7 @@ import { getSeriesDetail, getSimilarSeries } from "@/features/series/queries";
 import type { SeriesCard, SeriesDetail, Volume } from "@/features/series/types";
 import { getLibraryStatus } from "@/features/user/library";
 import { formatDotDate, formatLongDate, formatVolumes } from "@/lib/format";
+import { pickRandom } from "@/lib/random";
 import { SHOW_COVERS } from "@/lib/variant";
 
 export async function generateMetadata({ params }: PageProps<"/series/[id]">): Promise<Metadata> {
@@ -79,7 +81,7 @@ function CoverLayout({ series, volumes }: { series: SeriesDetail; volumes: Volum
   return (
     <div className="flex flex-wrap items-start gap-12">
       <div className="w-full max-w-[280px] min-w-[220px] flex-[0_1_280px]">
-        <CoverImage src={series.cover_image_url} alt={series.series_title} sizes="280px" priority />
+        <CoverImage src={series.cover_image_url} alt={series.series_title} sizes="280px" preload />
       </div>
       <div className="flex min-w-0 flex-[1_1_440px] flex-col gap-6">
         <div className="flex flex-col gap-2">
@@ -222,8 +224,16 @@ async function Library({ seriesId }: { seriesId: string }) {
   return <LibraryActions seriesId={seriesId} initial={await getLibraryStatus(seriesId)} />;
 }
 
+// 似ているシリーズ: 上位30件の候補 (キャッシュ済み) から、表示のたびに選び直す。
+// 一番似ている作品が毎回消えないように上位 FIXED 件は固定し、残りを4位以下から同じ確率で選ぶ
+const SIMILAR = { pool: 30, shown: 8, fixed: 0 } as const;
+
 async function Similar({ base }: { base: SeriesCard }) {
-  const similar = await getSimilarSeries(base, 6);
-  if (!similar.length) return <p className="text-sm text-muted-foreground">似ている作品が見つかりませんでした。</p>;
-  return <SeriesCollection cards={similar} kind="similar" />;
+  const candidates = await getSimilarSeries(base, SIMILAR.pool);
+  if (!candidates.length) return <p className="text-sm text-muted-foreground">似ている作品が見つかりませんでした。</p>;
+  // ランダムな値はリクエストごとに変わるので、ここから先はリクエストのたびに描くと Next.js に伝える
+  await connection();
+  const fixed = candidates.slice(0, SIMILAR.fixed);
+  const picked = pickRandom(candidates.slice(SIMILAR.fixed), SIMILAR.shown - fixed.length);
+  return <SeriesCollection cards={[...fixed, ...picked]} kind="similar" />;
 }
