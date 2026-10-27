@@ -16,7 +16,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-14">
       <Suspense fallback={<div className="h-24" aria-hidden />}>
-        <ForYou /> 
+        <ForYou />
       </Suspense>
 
       <section className="flex flex-col gap-5">

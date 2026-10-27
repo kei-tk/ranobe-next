@@ -224,8 +224,8 @@ async function Library({ seriesId }: { seriesId: string }) {
   return <LibraryActions seriesId={seriesId} initial={await getLibraryStatus(seriesId)} />;
 }
 
-// 似ているシリーズ: 上位30件の候補 (キャッシュ済み) から、表示のたびに選び直す。
-// 一番似ている作品が毎回消えないように上位 FIXED 件は固定し、残りを4位以下から同じ確率で選ぶ
+// 似ているシリーズ: 似ている順の上位 pool 件の候補 (キャッシュ済み) から、表示のたびに shown 件を選び直す。
+// 上位 fixed 件は毎回そのまま出し、残りはそれより下の候補から同じ確率で選ぶ (fixed: 0 なら全件をランダムに選ぶ)
 const SIMILAR = { pool: 30, shown: 8, fixed: 0 } as const;
 
 async function Similar({ base }: { base: SeriesCard }) {
