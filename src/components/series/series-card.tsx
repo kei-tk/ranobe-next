@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CoverImage } from "@/components/common/cover-image";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { tagLine, type CardWithReason } from "@/features/series/types";
 import { formatShortDate, formatVolumes } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,32 @@ export function SeriesCardView({
 
 // 1行に並ぶ最大の枚数 (本文の幅 1192px で計算)。画面の最初に見える行の書影は遅延読み込みしない
 //   標準: (1192 + 20) / (156 + 20) → 6枚 / 書影ビュー: (1192 + 6) / (124 + 6) → 9枚
-export const FIRST_ROW = { card: 6, cover: 9 } as const;
+//   横スクロール: 幅を固定するので7枚目が途中まで見える → 7枚
+export const FIRST_ROW = { card: 6, cover: 9, row: 7 } as const;
+
+// 横スクロールの1行 (ホームのおすすめ・新作)。件数が多くても縦に伸びないようにする
+export function SeriesRow({
+  cards,
+  variant,
+  eagerCount = 0,
+}: {
+  cards: CardWithReason[];
+  variant: CardVariant;
+  eagerCount?: number;
+}) {
+  return (
+    <ScrollArea className="w-full">
+      <div className="flex gap-x-5 pb-4">
+        {cards.map((c, i) => (
+          <div key={c.series_id} className="w-[156px] shrink-0">
+            <SeriesCardView card={c} variant={variant} eager={i < eagerCount} />
+          </div>
+        ))}
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
+  );
+}
 
 // カードのグリッド (cardSize「標準」: 最小 156px、間隔 縦32 横20)。書影ビューは最小 124px、間隔 6
 // eagerCount: 先頭から何枚をすぐ読み込むか (画面の上にあるグリッドだけで指定する)

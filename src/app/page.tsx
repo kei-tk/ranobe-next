@@ -80,10 +80,11 @@ async function ForYou() {
 
 function GridSkeleton({ count }: { count: number }) {
   if (SHOW_COVERS) {
+    // 書影ありの版は横スクロールの1行 (SeriesRow) と同じ形
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(156px,1fr))] gap-x-5 gap-y-8" aria-hidden>
+      <div className="flex gap-x-5 overflow-hidden pb-4" aria-hidden>
         {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="flex flex-col gap-2.5">
+          <div key={i} className="flex w-[156px] shrink-0 flex-col gap-2.5">
             <div className="aspect-[3/4] animate-pulse bg-muted" />
             <div className="h-4 w-3/4 animate-pulse bg-muted" />
           </div>

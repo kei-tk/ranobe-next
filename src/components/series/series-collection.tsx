@@ -1,4 +1,4 @@
-import { FIRST_ROW, SeriesGrid } from "@/components/series/series-card";
+import { FIRST_ROW, SeriesGrid, SeriesRow } from "@/components/series/series-card";
 import { SeriesList } from "@/components/series/series-list";
 import type { CardWithReason } from "@/features/series/types";
 import { SHOW_COVERS } from "@/lib/variant";
@@ -20,14 +20,18 @@ export function SeriesCollection({
   cards: CardWithReason[];
   kind: keyof typeof COVER_VARIANT;
 }) {
-  return SHOW_COVERS ? (
-    <SeriesGrid cards={cards} variant={COVER_VARIANT[kind]} eagerCount={ABOVE_FOLD.has(kind) ? FIRST_ROW.card : 0} />
-  ) : (
-    <SeriesList cards={cards} layout="syn" />
-  );
+  if (!SHOW_COVERS) return <SeriesList cards={cards} layout="syn" />;
+  // おすすめ・新作・似ているシリーズは横スクロールの1行にする
+  if (ROW.has(kind)) {
+    return (
+      <SeriesRow cards={cards} variant={COVER_VARIANT[kind]} eagerCount={ABOVE_FOLD.has(kind) ? FIRST_ROW.row : 0} />
+    );
+  }
+  return <SeriesGrid cards={cards} variant={COVER_VARIANT[kind]} />;
 }
 
-// ホームの上に出るもの。どちらが最初に見えるかはログイン状態で変わるので、両方の1行目をすぐ読み込む
+const ROW = new Set<keyof typeof COVER_VARIANT>(["recommend", "release", "similar"]);
+// ホームの上に出るもの。どちらが最初に見えるかはログイン状態で変わるので、両方の先頭をすぐ読み込む
 const ABOVE_FOLD = new Set<keyof typeof COVER_VARIANT>(["recommend", "release"]);
 
 // 新作・新刊のランダム表示の件数。あらすじ型は1件が大きいのでデザインどおり6件
